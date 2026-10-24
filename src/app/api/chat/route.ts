@@ -50,13 +50,14 @@ export async function POST(req: Request) {
     if (e instanceof Anthropic.RateLimitError) {
       return NextResponse.json({ error: "The assistant is busy, try again in a moment." }, { status: 503 });
     }
-    if (e instanceof Anthropic.APIError) {
-      console.error("Anthropic API error", e.status, e.message);
-    } else {
-      console.error(e);
-    }
+    // The short ref shows in the chat so a failure reported from a screenshot can be matched to the logs.
+    const ref = e instanceof Anthropic.APIError ? `api-${e.status ?? "conn"}` : "server";
+    console.error(`[chat ${ref}] history=${history.length} msgs`, e);
     return NextResponse.json(
-      { error: `The assistant is having a moment. You can book directly, or WhatsApp K on ${BUSINESS.phoneDisplay}.` },
+      {
+        error: `Sorry, that didn't go through. Tap send to try again, or book directly. (ref ${ref})`,
+        retry: true,
+      },
       { status: 500 },
     );
   }

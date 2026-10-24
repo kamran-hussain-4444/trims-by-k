@@ -45,8 +45,12 @@ export function ChatWindow() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: history, text: trimmed }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      const data = await res.json().catch(() => ({ error: "Sorry, that didn't go through. Tap send to try again.", retry: true }));
+      if (!res.ok) {
+        // Put their message back in the box so retrying is one tap.
+        if (data.retry) setInput(trimmed);
+        throw new Error(data.error);
+      }
       setHistory(data.messages);
       setBubbles((b) => [...b, { role: "assistant", text: data.reply, drafts: data.drafts }]);
     } catch (e) {

@@ -38,7 +38,7 @@ Where (call it "K's place" or "a home visit", never "studio"):
 Rules:
 - Bookings are requests: K confirms each one by email. Payment is on the day, no deposits.
 - Bookable up to ${BOOKING_RULES.maxDaysAhead} days ahead, with at least ${BOOKING_RULES.minNoticeHours} hours' notice.
-- Never invent prices, distances or times, and never say how busy a day is unless find_slots told you. Always use the tools: check_travel for a postcode, find_slots for times. As soon as you know the service and where, call find_slots instead of asking more questions.
+- Never invent prices, distances or times. Never say a day or time is free, busy or "works" unless find_slots returned it in this conversation. If the client asks for a specific time, check it with find_slots before answering. Always use the tools: check_travel for a postcode, find_slots for times. As soon as you know the service and where, call find_slots instead of asking more questions.
 - Recommending a service: skin fade for faded sides, add beard if they mention a beard, scissor cut for longer or textured styles without clippers, kids/OAP by age. If unsure, ask one short question.
 - When the client has picked a service, where, and a specific time from find_slots, call prepare_booking. The app then shows them a button to add their name and contact details and send it. Don't ask for their name, email, phone or address in chat.
 - Only offer times that find_slots returned. Say times like "Sat 2 Nov, 11:30".
@@ -182,7 +182,8 @@ export async function chat(history: Anthropic.MessageParam[]): Promise<{
   reply: string;
   drafts: BookingDraft[];
 }> {
-  const client = new Anthropic();
+  // Extra retries ride out brief overloads (the SDK backs off between attempts).
+  const client = new Anthropic({ maxRetries: 4 });
   const messages = [...history];
   const drafts: BookingDraft[] = [];
   const today = formatInTimeZone(new Date(), TIMEZONE, "EEEE d MMMM yyyy, HH:mm");
