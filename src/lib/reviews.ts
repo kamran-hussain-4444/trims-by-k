@@ -8,12 +8,7 @@ export const REVIEWS: { name: string; rating: number; quote: string }[] = [
     quote:
       "The consultation is what sets him apart. Explained what would suit my face shape instead of just copying a photo. Never going anywhere else.",
   },
-  {
-    name: "Anvay",
-    rating: 5,
-    quote:
-      "Always a good time. Music on, catching up on life, and walking out with a crisp fade. Some of the best advice I've had has come from that chair.",
-  },
+  { name: "Anvay", rating: 5, quote: "Always a good time and always leave with a fresh cut. Top guy." },
   {
     name: "James",
     rating: 4,

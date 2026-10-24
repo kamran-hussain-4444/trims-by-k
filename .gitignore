@@ -49,3 +49,7 @@ next-env.d.ts
 .claude/hillclimb/**/report.html
 .claude/hillclimb/**/state.json
 .claude/hillclimb/**/trajectory/
+
+# Playwright output
+/playwright-report/
+/test-results/

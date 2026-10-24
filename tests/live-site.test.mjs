@@ -47,7 +47,7 @@ async function book(overrides = {}) {
     mode: "studio",
     name: `TEST ${RUN} #${n}`,
     email: `delivered+tbk-${RUN}-${n}@resend.dev`,
-    phone: "07000000000",
+    phone: "07700 900123",
     haircutNotes: "automated test, please ignore",
     ...overrides,
   };
@@ -144,6 +144,10 @@ try {
   const slot = studioSlots[0];
   check("reject: bad email", (await book({ start: slot, email: "not-an-email" })).status === 400);
   check("reject: short phone", (await book({ start: slot, phone: "123" })).status === 400);
+  check("reject: letters as phone number", (await book({ start: slot, phone: "abcdefghij" })).status === 400);
+  check("reject: fake repeated-digit number", (await book({ start: slot, phone: "07000000000" })).status === 400);
+  const typo = await book({ start: slot, email: "ryan.test@gmail.con" });
+  check("reject: email domain typo (gmail.con) with suggestion", typo.status === 409 && /gmail.com/.test(typo.error ?? ""), JSON.stringify(typo));
   check("reject: 1-letter name", (await book({ start: slot, name: "A" })).status === 400);
   check("reject: unknown service", (await book({ start: slot, serviceId: "perm" })).status === 409);
   check("reject: home visit without address", (await book({ start: slot, mode: "travel", postcode: bands.b5 })).status === 400);

@@ -70,6 +70,13 @@ export default async function BookingDetail({ params }: { params: Promise<{ id: 
               driving
             </Detail>
           )}
+          <Detail label="Payment">
+            {booking.paid_at ? (
+              <span className="font-semibold text-emerald-400">Paid online ✓</span>
+            ) : (
+              "Pay on the day"
+            )}
+          </Detail>
           <Detail label="Booked via">{booking.source === "chat" ? "AI assistant" : "Website"}</Detail>
           {booking.haircut_notes && <Detail label="Their notes">“{booking.haircut_notes}”</Detail>}
         </dl>
@@ -104,7 +111,9 @@ export default async function BookingDetail({ params }: { params: Promise<{ id: 
           )}
           {booking.status === "confirmed" && (
             <StatusButton id={booking.id} status="cancelled" className="border border-line sm:col-span-2">
-              Cancel booking (client gets an email)
+              {booking.paid_at
+                ? "Cancel booking (then refund them in Stripe)"
+                : "Cancel booking (client gets an email)"}
             </StatusButton>
           )}
         </section>

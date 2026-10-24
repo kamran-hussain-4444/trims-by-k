@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { formatInTimeZone } from "date-fns-tz";
 import { ArrowLeft, Car, Check, Home, Loader2, MessageCircle } from "lucide-react";
 import { BUSINESS, formatPrice, getService, SERVICES, TIMEZONE, whatsappLink } from "@/lib/config";
 import { Wordmark } from "@/components/logo";
+import { normaliseUkPhone, suggestEmailFix } from "@/lib/contact";
 
 type Mode = "studio" | "travel";
 type Quote =
@@ -46,9 +47,18 @@ export function BookingFlow() {
   const [start, setStart] = useState<string | null>(prefill.start);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Errors show at the top of the step; bring them into view so phone users see them.
+  const errorRef = useRef<HTMLParagraphElement>(null);
+  useEffect(() => {
+    if (error) errorRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [error]);
   const [form, setForm] = useState({ name: "", email: "", phone: "", address: "", haircutNotes: "" });
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
+
+  const [phoneTouched, setPhoneTouched] = useState(false);
+  const phoneInvalid = phoneTouched && form.phone.trim() !== "" && !normaliseUkPhone(form.phone);
+  const emailFix = suggestEmailFix(form.email);
 
   const service = getService(serviceId);
   const travelFee = mode === "travel" && quote?.ok ? quote.band.feePence : 0;
@@ -123,6 +133,11 @@ export function BookingFlow() {
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
+    if (submitting) return;
+    if (!normaliseUkPhone(form.phone)) {
+      setPhoneTouched(true);
+      return;
+    }
     setSubmitting(true);
     setError(null);
     try {
@@ -181,7 +196,11 @@ export function BookingFlow() {
       label={STEPS[step]}
     >
       {error && (
-        <p role="alert" className="mb-4 rounded-xl border border-red/40 bg-red/10 p-3 text-sm">
+        <p
+          role="alert"
+          ref={errorRef}
+          className="mb-4 scroll-mt-20 rounded-xl border border-red/40 bg-red/10 p-3 text-sm"
+        >
           {error}
         </p>
       )}
@@ -355,8 +374,33 @@ export function BookingFlow() {
 
           <div className="grid gap-3">
             <Field label="Name" value={form.name} onChange={(v) => setForm({ ...form, name: v })} autoComplete="name" required minLength={2} />
-            <Field label="Email" type="email" value={form.email} onChange={(v) => setForm({ ...form, email: v })} autoComplete="email" required />
-            <Field label="Mobile" type="tel" value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} autoComplete="tel" required minLength={10} />
+            <div>
+              <Field label="Email" type="email" value={form.email} onChange={(v) => setForm({ ...form, email: v })} autoComplete="email" required />
+              {emailFix && (
+                <button
+                  type="button"
+                  onClick={() => setForm({ ...form, email: emailFix })}
+                  className="mt-1.5 text-sm text-red-hot underline underline-offset-2"
+                >
+                  Did you mean {emailFix}?
+                </button>
+              )}
+            </div>
+            <div>
+              <Field
+                label="Mobile"
+                type="tel"
+                inputMode="tel"
+                value={form.phone}
+                onChange={(v) => setForm({ ...form, phone: v })}
+                onBlur={() => setPhoneTouched(true)}
+                autoComplete="tel"
+                placeholder="07123 456789"
+                required
+                aria-invalid={phoneInvalid}
+              />
+              {phoneInvalid && <p className="mt-1.5 text-sm text-red-hot">Please enter a valid UK mobile, e.g. 07123 456789</p>}
+            </div>
             {mode === "travel" && (
               <Field
                 label="Address (house number & street)"

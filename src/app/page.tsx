@@ -30,7 +30,7 @@ export default function Home() {
           <h1 className="mt-6 font-display text-6xl font-extrabold uppercase italic leading-[0.9] tracking-tight md:text-8xl">
             Sharp cuts.
             <br />
-            <span className="text-red">Your place</span> or mine.
+            <span className="text-red-hot">Your place</span> or mine.
           </h1>
           <p className="mt-5 max-w-md text-base text-muted">
             Mobile barber based in {BUSINESS.baseArea}. Fades, scissor cuts and beard work for 100+ regulars since{" "}
@@ -48,7 +48,7 @@ export default function Home() {
               href="/chat"
               className="inline-flex items-center justify-center gap-2 rounded-full border border-line bg-surface px-7 py-4 font-semibold transition hover:border-muted"
             >
-              <Sparkles className="size-4 text-red" />
+              <Sparkles className="size-4 text-red-hot" />
               Chat to book
             </Link>
           </div>
@@ -65,7 +65,7 @@ export default function Home() {
 
       {/* Gallery */}
       <section aria-label="Recent cuts" className="mx-auto max-w-5xl">
-        <div className="no-scrollbar flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 md:grid md:grid-cols-3 md:overflow-visible">
+        <div tabIndex={0} aria-label="Gallery of recent cuts, scroll sideways" className="no-scrollbar flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 outline-none focus-visible:ring-2 focus-visible:ring-red-hot md:grid md:grid-cols-3 md:overflow-visible">
           {GALLERY.map((src, i) => (
             <div
               key={src}
@@ -84,7 +84,7 @@ export default function Home() {
         </div>
         <p className="mt-3 px-4 text-sm text-muted">
           More on Instagram{" "}
-          <a className="text-fg underline-offset-4 hover:underline" href={`https://instagram.com/${BUSINESS.instagram}`}>
+          <a className="text-fg underline underline-offset-4" href={`https://instagram.com/${BUSINESS.instagram}`}>
             @{BUSINESS.instagram}
           </a>
         </p>
@@ -143,7 +143,7 @@ export default function Home() {
             ["I confirm", "You'll get an email once I've locked it in. Pay on the day."],
           ].map(([title, body], i) => (
             <li key={title} className="rounded-2xl border border-line bg-surface p-5">
-              <span className="font-display text-4xl font-extrabold italic text-red">0{i + 1}</span>
+              <span className="font-display text-4xl font-extrabold italic text-red-hot">0{i + 1}</span>
               <p className="mt-2 font-semibold">{title}</p>
               <p className="mt-1 text-sm text-muted">{body}</p>
             </li>
@@ -154,14 +154,14 @@ export default function Home() {
       {REVIEWS.length > 0 && (
         <section className="mx-auto max-w-5xl px-4 pt-16">
           <SectionTitle kicker="Word of mouth" title="What clients say" />
-          <div className="no-scrollbar -mx-4 mt-6 flex snap-x gap-3 overflow-x-auto px-4">
+          <div tabIndex={0} aria-label="Client reviews, scroll sideways" className="no-scrollbar -mx-4 mt-6 flex snap-x gap-3 overflow-x-auto px-4 outline-none focus-visible:ring-2 focus-visible:ring-red-hot">
             {REVIEWS.map((r) => (
               <figure
                 key={r.name + r.quote}
                 className="w-[80%] shrink-0 snap-center rounded-2xl border border-line bg-surface p-5 md:w-80"
               >
                 <p className="tracking-widest" aria-label={`${r.rating} out of 5 stars`}>
-                  <span className="text-red">{"★".repeat(r.rating)}</span>
+                  <span className="text-red-hot">{"★".repeat(r.rating)}</span>
                   <span className="text-line">{"★".repeat(5 - r.rating)}</span>
                 </p>
                 <blockquote className="mt-2 text-sm leading-relaxed">“{r.quote}”</blockquote>
@@ -177,7 +177,7 @@ export default function Home() {
         <div className="relative overflow-hidden rounded-3xl bg-red p-8 text-white">
           <div className="stripe absolute inset-y-0 right-0 w-24 opacity-30" />
           <p className="font-display text-4xl font-extrabold uppercase italic leading-none">Due a fresh one?</p>
-          <p className="mt-2 text-white/80">Takes under a minute to book.</p>
+          <p className="mt-2 font-medium text-white">Takes under a minute to book.</p>
           <Link
             href="/book"
             className="mt-6 inline-flex items-center gap-2 rounded-full bg-black px-6 py-3 font-semibold transition hover:bg-black/80"
@@ -213,7 +213,7 @@ export default function Home() {
             aria-label="Chat to book"
             className="flex items-center justify-center rounded-full border border-line bg-surface px-5"
           >
-            <Sparkles className="size-5 text-red" />
+            <Sparkles className="size-5 text-red-hot" />
           </Link>
         </div>
       </div>
@@ -224,7 +224,7 @@ export default function Home() {
 function SectionTitle({ kicker, title }: { kicker: string; title: string }) {
   return (
     <div>
-      <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-red">
+      <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-red-hot">
         <span className="stripe inline-block h-2 w-6" />
         {kicker}
       </p>

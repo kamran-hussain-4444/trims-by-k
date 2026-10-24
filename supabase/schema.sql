@@ -44,6 +44,8 @@ create table if not exists bookings (
     check (status in ('pending', 'confirmed', 'declined', 'cancelled')),
   haircut_notes text not null default '',
   source text not null default 'web' check (source in ('web', 'chat')),
+  paid_at timestamptz, -- set when paid online through Stripe
+  stripe_session_id text,
   created_at timestamptz not null default now(),
   -- The database itself refuses two live bookings whose diary time overlaps,
   -- even if two people press "send" at the same moment.

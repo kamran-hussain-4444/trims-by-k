@@ -162,7 +162,7 @@ function DraftCard({ draft }: { draft: BookingDraft }) {
   });
   return (
     <div className="mt-2 w-72 max-w-full rounded-2xl border border-red/60 bg-surface p-4">
-      <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-red">
+      <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-red-hot">
         <CalendarCheck className="size-4" /> Ready to book
       </p>
       <p className="mt-2 font-semibold">{draft.serviceName}</p>

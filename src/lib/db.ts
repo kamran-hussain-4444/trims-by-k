@@ -35,6 +35,8 @@ export type BookingRow = {
   status: BookingStatus;
   haircut_notes: string;
   source: "web" | "chat";
+  paid_at: string | null;
+  stripe_session_id: string | null;
   created_at: string;
 };
 

@@ -60,6 +60,7 @@ function Section({ title, rows, empty, highlight }: { title: string; rows: Row[]
                   <p className="mt-0.5 text-sm text-muted">
                     {formatDateTime(new Date(b.start_at))} · {b.mode === "travel" ? `Home visit ${b.postcode}` : "At mine"} ·{" "}
                     {formatPrice(b.total_pence)}
+                    {b.paid_at && <span className="text-emerald-400"> · Paid online</span>}
                   </p>
                 </div>
                 <StatusPill status={b.status} />

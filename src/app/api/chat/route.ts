@@ -6,7 +6,8 @@ import { BUSINESS } from "@/lib/config";
 import { db } from "@/lib/db";
 import { todayInLondon } from "@/lib/slots";
 
-const DAILY_LIMIT = 40; // messages per visitor per day
+// Messages per visitor per day. Local test runs raise it with CHAT_DAILY_LIMIT; never set it on the live site.
+const DAILY_LIMIT = Number(process.env.CHAT_DAILY_LIMIT) || 40;
 const MAX_HISTORY_BYTES = 200_000;
 const MAX_USER_TURNS = 25;
 

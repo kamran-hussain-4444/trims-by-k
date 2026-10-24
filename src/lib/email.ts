@@ -3,6 +3,7 @@ import { formatInTimeZone } from "date-fns-tz";
 import { Resend } from "resend";
 import { BUSINESS, formatPrice, TIMEZONE, whatsappLink } from "./config";
 import type { BookingRow, ClientRow } from "./db";
+import { paymentsEnabled } from "./payments";
 import { formatDateTime } from "./slots";
 
 type Booking = BookingRow & { client: ClientRow };
@@ -27,8 +28,9 @@ function layout(title: string, body: string): string {
 </div></body></html>`;
 }
 
-function button(href: string, label: string): string {
-  return `<a href="${href}" style="display:inline-block;background:#e10600;color:#fff;text-decoration:none;font-weight:700;padding:14px 22px;border-radius:999px;margin:8px 0">${label}</a>`;
+function button(href: string, label: string, style: "primary" | "secondary" = "primary"): string {
+  const colours = style === "primary" ? "background:#e10600;color:#fff" : "background:#fff;color:#0b0b0c";
+  return `<a href="${href}" style="display:inline-block;${colours};text-decoration:none;font-weight:700;padding:14px 22px;border-radius:999px;margin:8px 0">${label}</a>`;
 }
 
 function summary(b: Booking): string {
@@ -60,6 +62,22 @@ function calendarLink(b: Booking): string {
   return `https://calendar.google.com/calendar/render?${params}`;
 }
 
+function htmlToText(html: string): string {
+  return html
+    .replace(/<a [^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/g, "$2: $1")
+    .replace(/<\/(p|h1|tr|div|table)>/g, "\n")
+    .replace(/<\/td>/g, "  ")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/[ \t]+/g, " ")
+    .replace(/\n\s*\n+/g, "\n\n")
+    .trim();
+}
+
 async function send(to: string, subject: string, html: string) {
   const key = process.env.RESEND_API_KEY;
   if (!key) {
@@ -68,11 +86,15 @@ async function send(to: string, subject: string, html: string) {
   }
   // A failed email must never lose a booking, so errors are logged, not thrown.
   try {
+    // A plain-text copy and a real reply-to address both help with spam filters (Outlook especially),
+    // and replies go straight to K instead of a no-reply mailbox.
     const { error } = await new Resend(key).emails.send({
       from: process.env.EMAIL_FROM ?? `${BUSINESS.name} <onboarding@resend.dev>`,
       to,
       subject,
       html,
+      text: htmlToText(html),
+      replyTo: process.env.ADMIN_EMAIL,
     });
     if (error) console.error("Email failed", subject, error);
   } catch (e) {
@@ -114,7 +136,14 @@ export async function sendStatusEmail(b: Booking) {
     await send(
       b.client.email,
       `Confirmed: ${formatDateTime(new Date(b.start_at))}, Trims by K`,
-      layout(`You're booked in, ${first}`, `${summary(b)}${address}${button(calendarLink(b), "Add to calendar")}`),
+      layout(
+        `You're booked in, ${first}`,
+        `${summary(b)}${address}${button(calendarLink(b), "Add to calendar")}${
+          paymentsEnabled()
+            ? `<p style="color:#d4d4d8;margin-top:20px">Want it sorted before the day? You can pay online now (optional):</p>${button(`${siteUrl()}/pay/${b.id}`, "Pay online now", "secondary")}`
+            : ""
+        }`,
+      ),
     );
   } else if (b.status === "declined") {
     await send(

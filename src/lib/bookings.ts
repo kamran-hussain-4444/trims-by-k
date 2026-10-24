@@ -4,7 +4,9 @@ import { fromZonedTime } from "date-fns-tz";
 import { z } from "zod";
 import { getService, TIMEZONE } from "./config";
 import { db, type BookingRow, type BookingStatus, type ClientRow } from "./db";
+import { normaliseUkPhone, suggestEmailFix } from "./contact";
 import { quoteTravel } from "./distance";
+import { emailDomainAcceptsMail } from "./email-domain";
 import { computeSlots, occupiedInterval, type AvailabilityBlock, type Interval } from "./slots";
 
 export class BookingError extends Error {}
@@ -92,8 +94,18 @@ export const bookingRequestSchema = z
     address: z.string().trim().max(200).optional(),
     start: z.iso.datetime(),
     name: z.string().trim().min(2).max(80),
-    email: z.email().trim().toLowerCase(),
-    phone: z.string().trim().min(10).max(20),
+    email: z.email("Please enter a valid email address").trim().toLowerCase(),
+    phone: z
+      .string()
+      .trim()
+      .transform((p, ctx) => {
+        const phone = normaliseUkPhone(p);
+        if (!phone) {
+          ctx.addIssue({ code: "custom", message: "Please enter a valid UK phone number, e.g. 07123 456789" });
+          return z.NEVER;
+        }
+        return phone;
+      }),
     haircutNotes: z.string().trim().max(500).default(""),
     source: z.enum(["web", "chat"]).default("web"),
   })
@@ -108,6 +120,12 @@ export async function createBookingRequest(
 ): Promise<{ booking: BookingRow; client: ClientRow }> {
   const service = getService(input.serviceId);
   if (!service) throw new BookingError("Unknown service");
+  if (!(await emailDomainAcceptsMail(input.email))) {
+    const fix = suggestEmailFix(input.email);
+    throw new BookingError(
+      `That email address can't receive emails${fix ? `, did you mean ${fix}?` : ". Please check it for typos."}`,
+    );
+  }
 
   // Recalculate everything on the server, never trust prices from the browser.
   let travelMin = 0;
