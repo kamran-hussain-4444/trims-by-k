@@ -125,3 +125,18 @@ Left before applying:
 1. Record the ~2 min admin walkthrough video (test bookings only) and link it in the README
 2. Fill in the GitHub "About" box (description + website)
 3. Put https://trimsbyk.co.uk in the Instagram bio
+
+## Status (Sat 24 Oct 2026, evening)
+
+Live and demo-ready at https://trimsbyk.co.uk. Since the afternoon:
+- Anvay's review feedback: UK phone validation, email typo checks (server checks the domain can receive mail), simpler review wording
+- Email deliverability: plain-text bodies + reply-to K (mum's emails were in Outlook junk; Ryan's address was a gmail.con typo)
+- Stripe online payment (Sandbox/test key in Netlify), signed webhook, 12-hour refund policy on pay page, emails and /privacy
+- Admin "Delete permanently" for old bookings (GDPR deletions)
+- Playwright suite: 43 tests on phone + desktop (npm run test:e2e), all passing
+- Walkthrough script for the mhance FDE video: https://claude.ai/artifact/4g6wiujxJaf6cZiPCWurWx
+
+Next (Sun 25 Oct):
+1. Record the 5-10 min walkthrough (HD webcam) using the script; clear test bookings first
+2. Upload (YouTube unlisted / Loom) and replace "link coming" in the README
+3. Later: switch Stripe to live keys (sk_live_ in Netlify value box + live webhook), then redeploy
