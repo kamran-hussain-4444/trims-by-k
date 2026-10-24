@@ -103,3 +103,14 @@ No add-ons or group bookings in v1.
 - [ ] Anthropic Console: about £5 credit, a monthly limit, and an API key
 - [x] WhatsApp number: 07931172506 (shown publicly on the site and in emails)
 - [ ] Send: logo file, gallery photos, 4–6 review quotes, base address (for the private settings only)
+
+## Status (end of night 1, Sat 24 Oct 2026, early hours)
+
+Done: v1 app built and committed (landing, booking flow, admin, emails, AI assistant, README, slot tests). Builds cleanly; not yet tested end to end against real services.
+
+Next:
+1. K: create the Supabase project (London), run `supabase/schema.sql`, fill in `.env.local`
+2. Test a real booking and the AI chat locally
+3. Push to GitHub, deploy on Netlify, add the environment variables there
+4. Connect the domain and verify it in Resend, then switch `EMAIL_FROM` and `SITE_URL`
+5. Add the review quotes to `src/lib/reviews.ts`, record the admin video, finish the README links
