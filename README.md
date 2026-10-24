@@ -13,6 +13,7 @@ Booking site for **Trims by K**, my mobile barbering business in Colchester (run
 | Book in 4 taps: service, where, time, details | Weekly hours and days off, editable from my phone |
 | Travel fee worked out from their postcode | Private notes per client (guard numbers, neckline, etc.) and booking history |
 | **AI chat assistant** that recommends a cut, finds real slots and prepares the booking | One-tap WhatsApp to any client |
+| **Optional online payment** (card, Apple Pay, Google Pay) once a booking is confirmed | "Paid online ✓" shown on each booking |
 
 ## The interesting parts
 
@@ -25,6 +26,15 @@ Booking site for **Trims by K**, my mobile barbering business in Colchester (run
 **Never trust the browser.** Prices, travel fees and slot availability are recalculated on the server for every request. The database is only reachable server-side (row-level security on, no public policies).
 
 **Built for a real business on a zero budget.** Free tiers throughout (Netlify, Supabase, Resend), straight-line distance from the free postcodes.io instead of a paid maps API, a daily keep-alive so the free database never pauses, and a per-visitor daily cap on AI messages so a stranger can't run up the bill.
+
+**Payments without touching card data.** Stripe Checkout hosts the card form.
+- **The amount** comes from the database, never the browser.
+- **The redirect back** after payment is verified with Stripe's API, not trusted from the URL.
+- **A signed webhook** records the payment even if the client closes the tab.
+- **Both paths are idempotent**, so a payment is never recorded twice.
+- **Payment only opens after I confirm the booking,** so nobody pays for a slot I turn down.
+
+See [`src/lib/payments.ts`](src/lib/payments.ts).
 
 **Privacy.** My base address is never on the site or in this repo. It's an environment variable, sent only in confirmation emails. Client data is visible only behind the admin login.
 
@@ -63,7 +73,7 @@ The eval caught a real bug. A client asked for "Saturday", then said "earliest p
 
 ## Stack
 
-Next.js 15 (App Router, TypeScript) · Tailwind CSS · Supabase (Postgres) · Resend (email) · Anthropic API (Claude Haiku 5.5) · Netlify
+Next.js 15 (App Router, TypeScript) · Tailwind CSS · Supabase (Postgres) · Resend (email) · Anthropic API (Claude Haiku 5.5) · Stripe Checkout · Netlify · Playwright
 
 ## Run it locally
 
