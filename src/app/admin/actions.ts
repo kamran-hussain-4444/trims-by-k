@@ -36,6 +36,25 @@ export async function updateStatus(formData: FormData) {
   revalidatePath("/admin", "layout");
 }
 
+// Permanent delete, for tidying up and for clients asking for their data to be removed.
+// Only for bookings that are no longer live, so an upcoming appointment can't vanish without
+// the client being told (cancel it first, which emails them).
+export async function deleteBooking(formData: FormData) {
+  await requireAdmin();
+  const id = String(formData.get("id"));
+  const { data: b } = await db().from("bookings").select("status, start_at, client_id").eq("id", id).single();
+  if (!b) redirect("/admin");
+  const live = (b.status === "pending" || b.status === "confirmed") && new Date(b.start_at) > new Date();
+  if (live) return;
+  const { error } = await db().from("bookings").delete().eq("id", id);
+  if (error) throw error;
+  // Remove the client's details too if this was their only booking.
+  const { count } = await db().from("bookings").select("id", { count: "exact", head: true }).eq("client_id", b.client_id);
+  if (count === 0) await db().from("clients").delete().eq("id", b.client_id);
+  revalidatePath("/admin", "layout");
+  redirect("/admin");
+}
+
 export async function saveClientNotes(formData: FormData) {
   await requireAdmin();
   const { error } = await db()

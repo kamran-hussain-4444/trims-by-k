@@ -6,6 +6,7 @@ import { getBookingWithClient } from "@/lib/bookings";
 import { db, type BookingRow } from "@/lib/db";
 import { formatDateTime, formatLongDate, formatSlotTime } from "@/lib/slots";
 import { StatusPill } from "@/components/status-pill";
+import { DeleteBookingButton } from "@/components/delete-booking-button";
 import { saveClientNotes, updateStatus } from "../../../actions";
 
 // UK mobiles: 07... -> 447... for wa.me links
@@ -155,6 +156,15 @@ export default async function BookingDetail({ params }: { params: Promise<{ id: 
               </li>
             ))}
           </ul>
+        </section>
+      )}
+
+      {!((booking.status === "pending" || booking.status === "confirmed") && start > new Date()) && (
+        <section className="border-t border-line pt-6">
+          <DeleteBookingButton id={booking.id} clientName={client.name} />
+          <p className="mt-2 text-xs text-muted">
+            Removes this booking for good. If it&apos;s {firstName}&apos;s only booking, their details are deleted too.
+          </p>
         </section>
       )}
     </div>

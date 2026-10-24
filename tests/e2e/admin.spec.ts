@@ -40,6 +40,30 @@ test("K confirms then cancels a booking from the admin page", async ({ page }) =
 
   await page.getByRole("button", { name: /Cancel booking/ }).click();
   await expect(page.getByText("cancelled", { exact: true })).toBeVisible();
+
+  // Once it's no longer live, K can delete it for good (after confirming).
+  page.once("dialog", (d) => d.accept());
+  await page.getByRole("button", { name: "Delete permanently" }).click();
+  await expect(page).toHaveURL(/\/admin$/);
+  expect(await (await sb(`bookings?id=eq.${booking.id}&select=id`)).json()).toEqual([]);
+  expect(await (await sb(`clients?id=eq.${client.id}&select=id`)).json()).toEqual([]); // only booking, so details go too
+});
+
+test("an upcoming booking can't be deleted, only cancelled", async ({ page }) => {
+  await goToDetails(page);
+  const email = testEmail("nodelete");
+  await page.getByLabel("Name").fill(`${TEST_NAME} NoDelete`);
+  await page.getByLabel("Email").fill(email);
+  await page.getByLabel("Mobile").fill(TEST_PHONE);
+  await page.getByRole("button", { name: "Send booking request" }).click();
+  await expect(page.getByRole("heading", { name: "Request sent" })).toBeVisible();
+  const [client] = await (await sb(`clients?email=eq.${encodeURIComponent(email)}&select=id`)).json();
+  const [booking] = await (await sb(`bookings?client_id=eq.${client.id}&select=id`)).json();
+  await page.goto(`/admin/login?next=/admin/bookings/${booking.id}`);
+  await page.getByPlaceholder("Password").fill(process.env.ADMIN_PASSWORD!);
+  await page.getByRole("button", { name: "Log in" }).click();
+  await expect(page.getByRole("button", { name: "Confirm booking" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Delete permanently" })).toHaveCount(0);
 });
 
 test("K adds and removes a day off", async ({ page }) => {
