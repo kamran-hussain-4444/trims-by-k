@@ -160,7 +160,11 @@ export default function Home() {
                 key={r.name + r.quote}
                 className="w-[80%] shrink-0 snap-center rounded-2xl border border-line bg-surface p-5 md:w-80"
               >
-                <blockquote className="text-sm leading-relaxed">“{r.quote}”</blockquote>
+                <p className="tracking-widest" aria-label={`${r.rating} out of 5 stars`}>
+                  <span className="text-red">{"★".repeat(r.rating)}</span>
+                  <span className="text-line">{"★".repeat(5 - r.rating)}</span>
+                </p>
+                <blockquote className="mt-2 text-sm leading-relaxed">“{r.quote}”</blockquote>
                 <figcaption className="mt-3 text-sm text-muted">{r.name}</figcaption>
               </figure>
             ))}
