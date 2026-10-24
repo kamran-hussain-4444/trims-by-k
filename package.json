@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "tsx tests/slots.test.ts"
+    "test": "tsx tests/slots.test.ts",
+    "eval": "tsx --conditions=react-server --env-file=.env.local tests/eval/run-eval.mts",
+    "test:live": "node --env-file=.env.local tests/live-site.test.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.3.0",

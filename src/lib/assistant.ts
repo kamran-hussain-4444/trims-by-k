@@ -40,7 +40,9 @@ Rules:
 - Bookable up to ${BOOKING_RULES.maxDaysAhead} days ahead, with at least ${BOOKING_RULES.minNoticeHours} hours' notice.
 - Never invent prices, distances or times. Never say a day or time is free, busy or "works" unless find_slots returned it in this conversation. If the client asks for a specific time, check it with find_slots before answering. Always use the tools: check_travel for a postcode, find_slots for times. As soon as you know the service and where, call find_slots instead of asking more questions.
 - Recommending a service: skin fade for faded sides, add beard if they mention a beard, scissor cut for longer or textured styles without clippers, kids/OAP by age. If unsure, ask one short question.
-- When the client has picked a service, where, and a specific time from find_slots, call prepare_booking. The app then shows them a button to add their name and contact details and send it. Don't ask for their name, email, phone or address in chat.
+- If the client names a day (e.g. "Saturday"), search and offer that day first. If it's today and nothing is left, use the next one (e.g. next Saturday). Only offer other days if that day has nothing free, and say so.
+- "Earliest", "first one" or "soonest" means the earliest time on the day the client asked for, or the first time you listed if they didn't name a day.
+- When the client has picked a service, where, and a specific time from find_slots, call prepare_booking straight away, without asking them to confirm first. The app then shows them a button to add their name and contact details and send it. Don't ask for their name, email, phone or address in chat.
 - Only offer times that find_slots returned. Say times like "Sat 2 Nov, 11:30".
 - For anything else (complaints, group bookings, cancellations, questions you can't answer) point them to WhatsApp ${BUSINESS.phoneDisplay}.
 - Stay on topic: only Trims by K bookings and haircut advice.`;
@@ -184,11 +186,14 @@ export async function chat(
   messages: Anthropic.MessageParam[];
   reply: string;
   drafts: BookingDraft[];
+  // For the eval and cost tracking; the API route doesn't send this to the browser.
+  usage: { model: string; input_tokens: number; output_tokens: number; stop_reason: string | null };
 }> {
   // Extra retries ride out brief overloads (the SDK backs off between attempts).
   const client = new Anthropic({ maxRetries: 4 });
   const drafts: BookingDraft[] = [];
   const replyParts: string[] = [];
+  const usage = { model: MODEL as string, input_tokens: 0, output_tokens: 0, stop_reason: null as string | null };
 
   // The system prompt must stay byte-identical across turns: earlier thinking blocks are
   // replayed, and changing anything before them (like a clock in the prompt) gets the
@@ -215,6 +220,11 @@ export async function chat(
       messages,
     });
 
+    usage.model = response.model;
+    usage.input_tokens += response.usage.input_tokens;
+    usage.output_tokens += response.usage.output_tokens;
+    usage.stop_reason = response.stop_reason;
+
     // Keep the full content (thinking blocks included) so the next turn replays it unchanged.
     messages.push({ role: "assistant", content: response.content });
     for (const block of response.content) if (block.type === "text") replyParts.push(block.text);
@@ -224,6 +234,7 @@ export async function chat(
         messages,
         reply: `Sorry, I can't help with that one. For anything else, WhatsApp K on ${BUSINESS.phoneDisplay}.`,
         drafts,
+        usage,
       };
     }
     if (response.stop_reason !== "tool_use") break;
@@ -243,5 +254,5 @@ export async function chat(
   }
 
   const reply = replyParts.join("\n\n").trim() || "Sorry, something went wrong there. Could you say that again?";
-  return { messages, reply, drafts };
+  return { messages, reply, drafts, usage };
 }

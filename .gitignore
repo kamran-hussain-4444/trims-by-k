@@ -43,3 +43,9 @@ next-env.d.ts
 
 # original low-res logo
 /assets/
+
+# eval output (derived / bulky)
+**/traces/
+.claude/hillclimb/**/report.html
+.claude/hillclimb/**/state.json
+.claude/hillclimb/**/trajectory/

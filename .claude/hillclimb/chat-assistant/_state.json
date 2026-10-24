@@ -1,0 +1,49 @@
+{
+  "metrics": [
+    {
+      "id": "pass",
+      "label": "Pass (all)",
+      "kind": "binary"
+    },
+    {
+      "id": "checks",
+      "label": "Auto checks",
+      "kind": "binary"
+    },
+    {
+      "id": "grounded",
+      "label": "Grounded",
+      "kind": "binary"
+    },
+    {
+      "id": "on_policy",
+      "label": "On policy",
+      "kind": "binary"
+    },
+    {
+      "id": "concise_plain",
+      "label": "Concise",
+      "kind": "binary"
+    },
+    {
+      "id": "helpful",
+      "label": "Helpful",
+      "kind": "binary"
+    }
+  ],
+  "perf_fields": [
+    "latency_s",
+    "tool_calls",
+    "usage"
+  ],
+  "prices": {
+    "claude-haiku-5-5": {
+      "in": 0.1,
+      "out": 0.5
+    },
+    "claude-sonnet-5-5": {
+      "in": 2,
+      "out": 10
+    }
+  }
+}

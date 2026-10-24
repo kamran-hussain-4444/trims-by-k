@@ -28,6 +28,27 @@ Booking site for **Trims by K**, my mobile barbering business in Colchester (run
 
 **Privacy.** My base address is never on the site or in this repo. It's an environment variable, sent only in confirmation emails. Client data is visible only behind the admin login.
 
+## Testing and evaluation
+
+**End-to-end tests against the live site** ([`tests/live-site.test.mjs`](tests/live-site.test.mjs), 44 checks): every travel band, out-of-range and invalid postcodes, malformed and tampered requests (a fake £0.01 price is ignored), double bookings, a cut squeezed into home-visit driving time, and the admin confirm/cancel/decline flow, including a forged login cookie. It cleans up its own test data.
+
+**An eval for the AI assistant** ([`tests/eval/`](tests/eval/)): 20 realistic chats × 2 runs through the real `chat()` entry point with real tools. Recommendations, full bookings, travel edge cases and policy cases (address requests, prompt injection, group bookings, cancellations). Each run is graded two ways:
+- **Automatic checks:** right service, mode and day on the booking card, right prices, required tools called, address never revealed.
+- **A Claude Sonnet marker:** four strict pass/fail rules (grounded facts, on policy, concise plain text, helpful), using structured output.
+
+The marker itself is sanity-checked against a known-bad and a known-good transcript.
+
+| | Pass (all rules) | Auto checks | Grounded | On policy | Concise | Helpful |
+|---|---|---|---|---|---|---|
+| Baseline prompt | 93% | 95% | 98% | 100% | 100% | 100% |
+| v1 prompt | **95%** | **100%** | **100%** | 100% | 100% | 95% |
+
+The eval caught a real bug. A client asked for "Saturday", then said "earliest please", and the assistant booked the earliest slot on *any* day (a Sunday). The v1 prompt fix took that case from 0/2 to 2/2. With 40 runs the overall difference is within noise (about ±8 points), so the claim is "fixed the bug without regressions", not "+2%". A full run costs about $0.30.
+
+**Bugs found by real usage, then fixed:**
+- The chat failed whenever the minute changed between messages. The system prompt contained a clock, which invalidated the replayed thinking blocks. The prompt is now static, and the time travels with each message.
+- Brief API blips gave up immediately. There are now more retries, and an error reference shown in chat to match against server logs.
+
 ## Stack
 
 Next.js 15 (App Router, TypeScript) · Tailwind CSS · Supabase (Postgres) · Resend (email) · Anthropic API (Claude Haiku 5.5) · Netlify
@@ -39,6 +60,8 @@ npm install
 cp .env.example .env.local   # fill in the values
 npm run dev
 npm test                     # slot scheduling tests
+npm run test:live            # end-to-end tests against the live site
+npm run eval -- --reps 2 --variant v2   # AI assistant eval (about $0.30)
 ```
 
 Create the database by pasting [`supabase/schema.sql`](supabase/schema.sql) into the Supabase SQL editor.

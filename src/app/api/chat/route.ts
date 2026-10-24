@@ -47,8 +47,8 @@ export async function POST(req: Request) {
   }
 
   try {
-    const result = await chat(history, text);
-    return NextResponse.json(result);
+    const { messages, reply, drafts } = await chat(history, text);
+    return NextResponse.json({ messages, reply, drafts });
   } catch (e) {
     if (e instanceof Anthropic.RateLimitError) {
       return NextResponse.json({ error: "The assistant is busy, try again in a moment." }, { status: 503 });
