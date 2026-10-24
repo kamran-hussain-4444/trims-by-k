@@ -195,7 +195,7 @@ export default function Home() {
           <a href={whatsappLink()} className="inline-flex items-center gap-1">
             <MessageCircle className="size-4" /> WhatsApp
           </a>
-          <Link href="/privacy">Privacy</Link>
+          <Link href="/privacy">Privacy &amp; refunds</Link>
         </div>
         <p className="mt-4">
           © {new Date().getFullYear()} {BUSINESS.name}

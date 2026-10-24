@@ -74,6 +74,10 @@ export const BOOKING_RULES = {
   slotStepMin: 15,
 };
 
+// Shown wherever someone can pay online in advance.
+export const REFUND_POLICY =
+  "Paid online and need to cancel? Cancel at least 12 hours before your appointment for a full refund. Later cancellations and no-shows aren't refunded.";
+
 export const BUSINESS = {
   name: "Trims by K",
   baseArea: "Colchester",

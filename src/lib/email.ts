@@ -1,7 +1,7 @@
 import "server-only";
 import { formatInTimeZone } from "date-fns-tz";
 import { Resend } from "resend";
-import { BUSINESS, formatPrice, TIMEZONE, whatsappLink } from "./config";
+import { BUSINESS, formatPrice, REFUND_POLICY, TIMEZONE, whatsappLink } from "./config";
 import type { BookingRow, ClientRow } from "./db";
 import { paymentsEnabled } from "./payments";
 import { formatDateTime } from "./slots";
@@ -140,7 +140,7 @@ export async function sendStatusEmail(b: Booking) {
         `You're booked in, ${first}`,
         `${summary(b)}${address}${button(calendarLink(b), "Add to calendar")}${
           paymentsEnabled()
-            ? `<p style="color:#d4d4d8;margin-top:20px">Want it sorted before the day? You can pay online now (optional):</p>${button(`${siteUrl()}/pay/${b.id}`, "Pay online now", "secondary")}`
+            ? `<p style="color:#d4d4d8;margin-top:20px">Want it sorted before the day? You can pay online now (optional):</p>${button(`${siteUrl()}/pay/${b.id}`, "Pay online now", "secondary")}<p style="color:#a1a1aa;font-size:12px">${REFUND_POLICY}</p>`
             : ""
         }`,
       ),

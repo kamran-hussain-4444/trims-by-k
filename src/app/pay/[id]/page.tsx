@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Check, Lock } from "lucide-react";
-import { formatPrice } from "@/lib/config";
+import { formatPrice, REFUND_POLICY } from "@/lib/config";
 import { getBookingWithClient } from "@/lib/bookings";
 import { canPayOnline, confirmPayment } from "@/lib/payments";
 import { formatDateTime } from "@/lib/slots";
@@ -67,6 +67,9 @@ export default async function PayPage({
           </button>
         </form>
         <p className="mt-3 text-xs text-muted">Card, Apple Pay or Google Pay through Stripe. Prefer to pay on the day? That&apos;s fine too.</p>
+        <p className="mt-3 text-xs text-muted">
+          {REFUND_POLICY} <Link href="/privacy#refunds" className="underline">Full policy</Link>
+        </p>
       </>
     );
   } else {
