@@ -26,7 +26,7 @@ export default function Home() {
       <section className="relative overflow-hidden">
         <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-red/25 blur-3xl" />
         <div className="mx-auto max-w-5xl px-4 pb-10 pt-10 md:pt-20">
-          <LogoMark className="w-16 text-xl" />
+          <LogoMark withName className="size-28 text-[44px]" />
           <h1 className="mt-6 font-display text-6xl font-extrabold uppercase italic leading-[0.9] tracking-tight md:text-8xl">
             Sharp cuts.
             <br />
@@ -185,7 +185,7 @@ export default function Home() {
 
       <footer className="mx-auto max-w-5xl px-4 py-12 text-sm text-muted">
         <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-          <Wordmark className="text-fg" />
+          <Wordmark />
           <a href={`https://instagram.com/${BUSINESS.instagram}`}>Instagram</a>
           <a href={`https://www.tiktok.com/@${BUSINESS.tiktok}`}>TikTok</a>
           <a href={whatsappLink()} className="inline-flex items-center gap-1">

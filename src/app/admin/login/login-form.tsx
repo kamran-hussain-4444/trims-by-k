@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Wordmark } from "@/components/logo";
+import { LogoMark } from "@/components/logo";
 import { login } from "../actions";
 
 export function LoginForm() {
@@ -11,7 +11,7 @@ export function LoginForm() {
 
   return (
     <form action={action} className="grid gap-4">
-      <Wordmark className="text-4xl" />
+      <LogoMark withName className="size-24 text-[38px]" />
       <p className="text-muted">Admin login</p>
       <input type="hidden" name="next" value={next} />
       <input

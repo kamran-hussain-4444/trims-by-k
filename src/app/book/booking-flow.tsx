@@ -424,7 +424,7 @@ function Shell({
             </Link>
           )}
           <Link href="/">
-            <Wordmark className="text-xl" />
+            <Wordmark />
           </Link>
           <span className="w-16 text-right text-xs text-muted">{label}</span>
         </div>

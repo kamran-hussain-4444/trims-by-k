@@ -16,7 +16,10 @@ function esc(s: string): string {
 function layout(title: string, body: string): string {
   return `<!doctype html><html><body style="margin:0;background:#0b0b0c;font-family:Helvetica,Arial,sans-serif;color:#f4f4f5">
 <div style="max-width:520px;margin:0 auto;padding:32px 24px">
-  <div style="font-weight:900;font-size:28px;letter-spacing:-1px;color:#fff">TB<span style="color:#e10600">K</span></div>
+  <table role="presentation" cellpadding="0" cellspacing="0"><tr>
+    <td style="width:52px;height:52px;border-radius:50%;background:#e10600;color:#000;font-weight:900;font-size:19px;letter-spacing:-1.5px;text-align:center;vertical-align:middle">TBK</td>
+    <td style="padding-left:12px;font-weight:700;font-size:16px;color:#fff">Trims by K</td>
+  </tr></table>
   <h1 style="font-size:22px;margin:24px 0 16px">${title}</h1>
   ${body}
   <p style="color:#a1a1aa;font-size:13px;margin-top:32px">Need to cancel or change? <a style="color:#ff3b30" href="${whatsappLink()}">WhatsApp me</a> or text ${BUSINESS.phoneDisplay}.</p>
