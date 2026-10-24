@@ -46,16 +46,34 @@ export async function createCheckout(b: BookingRow & { client: { email: string }
   return session.url!;
 }
 
+async function markPaid(bookingId: string, sessionId: string) {
+  const { error } = await db()
+    .from("bookings")
+    .update({ paid_at: new Date().toISOString(), stripe_session_id: sessionId })
+    .eq("id", bookingId)
+    .is("paid_at", null); // first writer wins, so the redirect and the webhook can both run safely
+  if (error) throw error;
+}
+
 // Called when Stripe sends the client back. Trusts nothing in the URL: asks Stripe directly
 // whether this session is paid and belongs to this booking.
 export async function confirmPayment(bookingId: string, sessionId: string): Promise<boolean> {
   const session = await client().checkout.sessions.retrieve(sessionId);
   if (session.metadata?.booking_id !== bookingId || session.payment_status !== "paid") return false;
-  const { error } = await db()
-    .from("bookings")
-    .update({ paid_at: new Date().toISOString(), stripe_session_id: session.id })
-    .eq("id", bookingId)
-    .is("paid_at", null);
-  if (error) throw error;
+  await markPaid(bookingId, session.id);
   return true;
+}
+
+// Stripe also tells the server directly (a webhook), so a payment is recorded even if the
+// client closes the tab before getting back to the site. The signature check proves the
+// message really came from Stripe.
+export async function handleWebhook(rawBody: string, signature: string | null): Promise<void> {
+  const secret = process.env.STRIPE_WEBHOOK_SECRET;
+  if (!secret || !signature) throw new Error("webhook not configured or unsigned");
+  const event = client().webhooks.constructEvent(rawBody, signature, secret);
+  if (event.type === "checkout.session.completed" || event.type === "checkout.session.async_payment_succeeded") {
+    const session = event.data.object;
+    const bookingId = session.metadata?.booking_id;
+    if (bookingId && session.payment_status === "paid") await markPaid(bookingId, session.id);
+  }
 }
