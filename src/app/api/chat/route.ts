@@ -24,7 +24,10 @@ export async function POST(req: Request) {
   const text = typeof body?.text === "string" ? body.text.trim().slice(0, 1000) : "";
   if (!Array.isArray(history) || !text) return NextResponse.json({ error: "Bad request" }, { status: 400 });
 
-  const userTurns = history.filter((m) => m.role === "user" && typeof m.content === "string").length;
+  // Client turns carry text; tool results come back as user turns too but don't count.
+  const userTurns = history.filter(
+    (m) => m.role === "user" && Array.isArray(m.content) && m.content.some((b) => b.type === "text"),
+  ).length;
   if (JSON.stringify(history).length > MAX_HISTORY_BYTES || userTurns >= MAX_USER_TURNS) {
     return NextResponse.json({
       error: `This chat's got long, start a new one or book directly. Or WhatsApp K on ${BUSINESS.phoneDisplay}.`,
@@ -44,7 +47,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    const result = await chat([...history, { role: "user", content: text }]);
+    const result = await chat(history, text);
     return NextResponse.json(result);
   } catch (e) {
     if (e instanceof Anthropic.RateLimitError) {

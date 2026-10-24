@@ -177,24 +177,40 @@ async function runTool(name: string, input: unknown, drafts: BookingDraft[]): Pr
   return { error: `Unknown tool ${name}` };
 }
 
-export async function chat(history: Anthropic.MessageParam[]): Promise<{
+export async function chat(
+  history: Anthropic.MessageParam[],
+  text: string,
+): Promise<{
   messages: Anthropic.MessageParam[];
   reply: string;
   drafts: BookingDraft[];
 }> {
   // Extra retries ride out brief overloads (the SDK backs off between attempts).
   const client = new Anthropic({ maxRetries: 4 });
-  const messages = [...history];
   const drafts: BookingDraft[] = [];
-  const today = formatInTimeZone(new Date(), TIMEZONE, "EEEE d MMMM yyyy, HH:mm");
   const replyParts: string[] = [];
+
+  // The system prompt must stay byte-identical across turns: earlier thinking blocks are
+  // replayed, and changing anything before them (like a clock in the prompt) gets the
+  // request rejected as edited history. So the current time rides on each new user turn.
+  const now = formatInTimeZone(new Date(), TIMEZONE, "EEEE d MMMM yyyy, HH:mm");
+  const messages: Anthropic.MessageParam[] = [
+    ...history,
+    {
+      role: "user",
+      content: [
+        { type: "text", text: `(Sent ${now}, UK time)` },
+        { type: "text", text },
+      ],
+    },
+  ];
 
   for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
     const response = await client.messages.create({
       model: MODEL,
       max_tokens: 4096,
       output_config: { effort: "low" },
-      system: `${SYSTEM}\n\nRight now it is ${today} (UK time).`,
+      system: SYSTEM,
       tools,
       messages,
     });
