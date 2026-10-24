@@ -76,6 +76,12 @@ alter table clients enable row level security;
 alter table bookings enable row level security;
 alter table chat_usage enable row level security;
 
+-- Newer Supabase projects don't grant API access to new tables automatically.
+-- Only the server's secret key (service_role) gets in; the public keys stay locked out.
+grant usage on schema public to service_role;
+grant select, insert, update, delete on all tables in schema public to service_role;
+grant execute on function bump_chat_usage(text, date) to service_role;
+
 -- Starting hours: Thursday & Friday evenings, Saturday & Sunday daytime.
 -- Change these any time from the admin page.
 insert into availability_blocks (weekday, start_time, end_time)
