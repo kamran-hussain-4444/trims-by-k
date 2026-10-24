@@ -114,3 +114,14 @@ Next:
 3. Push to GitHub, deploy on Netlify, add the environment variables there
 4. Connect the domain and verify it in Resend, then switch `EMAIL_FROM` and `SITE_URL`
 5. Add the review quotes to `src/lib/reviews.ts`, record the admin video, finish the README links
+
+## Status (Sat 24 Oct 2026, afternoon)
+
+Live at https://trimsbyk.co.uk (HTTPS, www redirects). Code at https://github.com/kamran-hussain-4444/trims-by-k.
+Tested on the live site: booking request, confirm/cancel emails from bookings@trimsbyk.co.uk, AI assistant, admin login.
+Done since night 1: Supabase, Resend domain verified, Netlify deploy (Next.js upgraded to 15.5.28 for CVE-2025-55182), Instagram logo, 10 real reviews, chat retries + error refs.
+
+Left before applying:
+1. Record the ~2 min admin walkthrough video (test bookings only) and link it in the README
+2. Fill in the GitHub "About" box (description + website)
+3. Put https://trimsbyk.co.uk in the Instagram bio

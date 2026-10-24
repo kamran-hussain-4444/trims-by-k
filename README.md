@@ -50,3 +50,4 @@ Built under a one-day deadline, so I cut these deliberately to ship something cl
 - Client sign-in by email link, with saved preference profiles and reference photos
 - Self-service cancellation links
 - Automatic "How was your cut?" review requests the day after an appointment
+- Upgrade to Next.js 16 (clears the remaining build-time `postcss` audit warning)
